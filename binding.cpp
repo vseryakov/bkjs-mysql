@@ -514,7 +514,7 @@ void MysqlDatabase::Init(Handle<Object> target)
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "query", Query);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "querySync", QuerySync);
 
-    target->Set(String::NewSymbol("MysqlDatabase"), constructor_template->GetFunction());
+    target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
 
 static bool ParseParameters(Row &params, const Arguments& args, int idx)
@@ -894,7 +894,7 @@ void MysqlStatement::Init(Handle<Object> target)
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "querySync", QuerySync);
     NODE_SET_PROTOTYPE_METHOD(constructor_template, "finalize", Finalize);
 
-    target->Set(String::NewSymbol("MysqlStatement"), constructor_template->GetFunction());
+    target->Set(String::NewSymbol("Statement"), constructor_template->GetFunction());
 
     // For statements created within database, All, Run
     object_template = Persistent<ObjectTemplate>::New(ObjectTemplate::New());
