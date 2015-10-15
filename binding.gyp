@@ -20,7 +20,6 @@
       ],
       "sources": [
         "binding.cpp",
-        "bklib/bklog.cpp",
         "bklib/bklib.cpp",
       ],
       "conditions": [

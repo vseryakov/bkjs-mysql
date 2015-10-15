@@ -3,9 +3,10 @@
 //  April 2013
 //
 
+#ifdef USE_MYSQL
+
 #include "bkjs.h"
 #include "bklib.h"
-#include "bklog.h"
 #include <mysql.h>
 
 #define MYSQL_MAX_BIND 99
@@ -471,9 +472,7 @@ void MysqlInit(Handle<Object> target)
 
 }
 
-NODE_MODULE(binding, MysqlInit);
-
-static Handle<Value> listStatements(const Arguments& args)
+static Handle<Value> stats(const Arguments& args)
 {
     HandleScope scope;
 
@@ -490,31 +489,6 @@ static Handle<Value> listStatements(const Arguments& args)
         i++;
     }
     return scope.Close(keys);
-}
-
-void MysqlDatabase::Init(Handle<Object> target)
-{
-    HandleScope scope;
-
-    NODE_SET_METHOD(target, "listStatements", listStatements);
-
-    Local < FunctionTemplate > t = FunctionTemplate::New(New);
-    constructor_template = Persistent < FunctionTemplate > ::New(t);
-    constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
-    constructor_template->InstanceTemplate()->SetAccessor(String::NewSymbol("open"), OpenGetter);
-    constructor_template->InstanceTemplate()->SetAccessor(String::NewSymbol("name"), NameGetter);
-    constructor_template->InstanceTemplate()->SetAccessor(String::NewSymbol("inserted_oid"), InsertedOidGetter);
-    constructor_template->InstanceTemplate()->SetAccessor(String::NewSymbol("affected_rows"), AffectedRowsGetter);
-    constructor_template->SetClassName(String::NewSymbol("MysqlDatabase"));
-
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "reset", Reset);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "close", Close);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "closeSync", CloseSync);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "exec", Exec);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "query", Query);
-    NODE_SET_PROTOTYPE_METHOD(constructor_template, "querySync", QuerySync);
-
-    target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
 }
 
 static bool ParseParameters(Row &params, const Arguments& args, int idx)
@@ -1086,3 +1060,39 @@ void MysqlStatement::Work_AfterQuery(uv_work_t* req)
     }
     delete baton;
 }
+
+void MysqlDatabase::Init(Handle<Object> target)
+{
+    HandleScope scope;
+
+    NODE_SET_METHOD(target, "stats", stats);
+
+    Local < FunctionTemplate > t = FunctionTemplate::New(New);
+    constructor_template = Persistent < FunctionTemplate > ::New(t);
+    constructor_template->InstanceTemplate()->SetInternalFieldCount(1);
+    constructor_template->InstanceTemplate()->SetAccessor(String::NewSymbol("open"), OpenGetter);
+    constructor_template->InstanceTemplate()->SetAccessor(String::NewSymbol("name"), NameGetter);
+    constructor_template->InstanceTemplate()->SetAccessor(String::NewSymbol("inserted_oid"), InsertedOidGetter);
+    constructor_template->InstanceTemplate()->SetAccessor(String::NewSymbol("affected_rows"), AffectedRowsGetter);
+    constructor_template->SetClassName(String::NewSymbol("MysqlDatabase"));
+
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "reset", Reset);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "close", Close);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "closeSync", CloseSync);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "exec", Exec);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "query", Query);
+    NODE_SET_PROTOTYPE_METHOD(constructor_template, "querySync", QuerySync);
+
+    target->Set(String::NewSymbol("Database"), constructor_template->GetFunction());
+}
+
+#else
+
+void MysqlInit(Handle<Object> target)
+{
+}
+
+#endif
+
+NODE_MODULE(binding, MysqlInit);
+
